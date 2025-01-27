@@ -182,11 +182,6 @@ public class calculatorA extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextArea1);
 
         jButton26.setText("-1");
-        jButton26.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton26ActionPerformed(evt);
-            }
-        });
 
         jButton27.setText(".");
         buttons.add(jButton27);
@@ -375,7 +370,6 @@ public class calculatorA extends javax.swing.JFrame {
                         if (cadena.isEmpty()) {
                             String textoActual = cadenaf.substring(cadenaf.length() - 1);
                             if (array2.size() > 0 && textoActual.equals(array2.getLast().trim())) {
-                                int aux = jTextArea1.getText().lastIndexOf(array.getLast().toString());
                                 array2.removeLast();
 
                                 cadenaf = cadenaf.substring(0, cadenaf.length() - 1);
@@ -404,7 +398,6 @@ public class calculatorA extends javax.swing.JFrame {
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // No aplica para texto plano
             }
         });
 
@@ -425,8 +418,6 @@ public class calculatorA extends javax.swing.JFrame {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                System.out.println(e.getKeyCode());
-                System.out.println(KeyEvent.VK_MULTIPLY);
                 // Detectar teclas numéricas
                 if ((e.getKeyCode() >= KeyEvent.VK_0 && e.getKeyCode() <= KeyEvent.VK_9) && !e.isShiftDown()) {
 
@@ -501,12 +492,9 @@ public class calculatorA extends javax.swing.JFrame {
         array2.clear();
         cadena = cadena.replaceAll(cadena, "");
         cadenaf = "";
+
         requestFocusInWindow();
     }//GEN-LAST:event_jButton22ActionPerformed
-
-    private void jButton26ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton26ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton26ActionPerformed
 
     private void jButtonActionPerformed(java.awt.event.ActionEvent evt) {
         String button = getjButtonName((JButton) evt.getSource());
@@ -523,6 +511,7 @@ public class calculatorA extends javax.swing.JFrame {
                 } else {
                     array2.add("]");
                     nao = false;
+
                 }
             } else {
                 array2.add(button);
@@ -532,12 +521,12 @@ public class calculatorA extends javax.swing.JFrame {
         }
         requestFocusInWindow();
     }
-//necesito que si 
 
     private void jButtonActionPerformed2(java.awt.event.ActionEvent evt) {
         String button = getjButtonName((JButton) evt.getSource());
         jTextArea1.append(button);
         if (button.equals("%") && array.size() > 0 && (array2.size() > 0 && !(array2.getLast().equals("+") || array2.getLast().equals("-")))) {//arreglar condicion de %
+            System.out.println("niggas");
             array.add(Double.parseDouble(cadena) / 100);
             cadena = cadena.replaceAll(cadena, "");
         } else if (button.equals("log") || button.equals("ln")) {
@@ -546,7 +535,6 @@ public class calculatorA extends javax.swing.JFrame {
             } else {
                 isLog = 2;
             }
-            System.out.println(isLog);
         } else if (isLog > 0) {
             if (isLog == 1) {
                 double res = cal.xLog(Double.parseDouble(cadena));
@@ -562,6 +550,12 @@ public class calculatorA extends javax.swing.JFrame {
 
             array.add(Double.valueOf(cadena));//añade los numeros
             array2.add(button);//añade los simbolos
+            for (double i : array) {
+                System.out.println(i);
+            }
+            for (String i : array2) {
+                System.out.println(i);
+            }
             cadena = cadena.replaceAll(cadena, "");
 
         }
@@ -577,11 +571,16 @@ public class calculatorA extends javax.swing.JFrame {
                 array.add(res);
             } else if (isLog == 2) {
                 double res = cal.xLn(Double.parseDouble(cadena));
-                System.out.println(res);
                 array.add(res);
             } else {
-                array.add(Double.parseDouble(cadena));
+                if (!cadena.isEmpty()) {
+                    array.add(Double.parseDouble(cadena));
+                }
+
             }
+            isLog = 0;
+            a = new String[array2.size()];
+            b = new Double[array.size()];
             b = array.toArray(b);
             a = array2.toArray(a);
             double res = Calculus(a, b, 0);
@@ -626,16 +625,21 @@ public class calculatorA extends javax.swing.JFrame {
                 } while (iterador >= 0);
                 Double[] subarray = Arrays.copyOfRange(numeros, i, aux2 - aux3);
                 String[] substring = Arrays.copyOfRange(signos, j + 1, aux2);
-                resu = Calculus(substring, subarray, adentro +1 );
+                resu = Calculus(substring, subarray, adentro + 1);
                 if (signos[j].equals("[") && resu < 0) {
                     resu = resu * -1;
                 }
+                System.out.println("adentro: " + adentro);
                 if (adentro > 0 || i + 1 > numeros.length) {
                     return resu;
                 }
                 j = j + aux2 + 2 - 1;
                 i = i + aux2 + 1 - 2 - aux3;//es i = i(tomo el valor actual) + aux2(cantidad de posiciones que se movio)+ 1(pos que deberia seguir) - 2(corrector porq 0 es una pos, y un -1 adicional por el codigo para que sepa el prox num) - aux3(excedente de aux2 para num) 
+                if (i+1 >= numeros.length) {
+                    return resu;
+                }
             }
+            System.out.println("resu: " + resu);
             aux1 = resu;
             resu = numeros[i + 1];
             if (signos[j].equals("+") || signos[j].equals("-")) {
@@ -660,7 +664,7 @@ public class calculatorA extends javax.swing.JFrame {
                     } while (iterador >= 0);
                     Double[] subarray = Arrays.copyOfRange(numeros, i + 1, i + aux2 + 1 - j - aux3);
                     String[] substring = Arrays.copyOfRange(signos, j + 1, aux2);
-                    resu = Calculus(substring, subarray, adentro++);
+                    resu = Calculus(substring, subarray, adentro + 1);
                     if (signos[j].equals("[") && resu < 0) {
                         resu = resu * -1;
                     }
@@ -706,7 +710,7 @@ public class calculatorA extends javax.swing.JFrame {
                     } while (iterador >= 0);
                     Double[] subarray = Arrays.copyOfRange(numeros, i + 1, aux2 - aux3);
                     String[] substring = Arrays.copyOfRange(signos, j + 2, aux2);
-                    resu = Calculus(substring, subarray, adentro++);
+                    resu = Calculus(substring, subarray, adentro + 1);
                     if (signos[j].equals("[") && resu < 0) {
                         resu = resu * -1;
                     }
@@ -769,11 +773,10 @@ public class calculatorA extends javax.swing.JFrame {
         if (j < signos.length - 1) {
             return !(signos[j + 1].equals("*")//si el simbolo siguiente es algo q no corte
                     || signos[j + 1].equals("/")
-                    || signos[j + 1].equals("%")
                     || signos[j + 1].equals("xⁿ")
                     || signos[j + 1].equals("√")
                     || signos[j + 1].equals("(")
-                    ||signos[j + 1].equals("["));
+                    || signos[j + 1].equals("["));
 
         } else {
             return true;
@@ -846,8 +849,8 @@ public class calculatorA extends javax.swing.JFrame {
     }
     private ArrayList<Double> array = new ArrayList<>();
     private ArrayList<String> array2 = new ArrayList<>();
-    private String[] a = new String[array2.size()];
-    private Double[] b = new Double[array.size()];
+    private String[] a;
+    private Double[] b;
     private Calculus cal = new Calculus();
     private String cadena = "", cadenaf = "";
     private boolean nao = false;
